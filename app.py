@@ -112,7 +112,7 @@ user_avatar = "👤"
 
 # 5. ربط الـ API بالذكاء الاصطناعي
 # ⚠️ حط الـ API KEY متاعك هنا
-API_KEY = "حط_الـ_API_KEY_متاعك_هنا" 
+API_KEY = "AQ.Ab8RN6LywCg9Qkt9LiH2a9WHltUJmBfyHzTEhh0sgh5V-a1VwA" 
 client = genai.Client(api_key=API_KEY)
 
 if "messages" not in st.session_state:
