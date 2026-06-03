@@ -14,19 +14,18 @@ st.set_page_config(
 
 # 2. كود التتبع Google Analytics
 TRACKING_ID = "G-XEKEDKQGY2"
-ga_script = f"""
-    <script async src="https://www.googletagmanager.com/gtag/js?id={TRACKING_ID}"></script>
+ga_script = """
+    <script async src="https://www.googletagmanager.com/gtag/js?id=""" + TRACKING_ID + """"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){{dataLayer.push(arguments);}}
+        function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '{TRACKING_ID}');
+        gtag('config', '""" + TRACKING_ID + """');
     </script>
 """
 
-# زينة الـ CSS السحرية
-st.markdown(f"""
-    {ga_script}
+# زينة الـ CSS السحرية (تم إصلاح مشكلة النسبة المئوية % هنا)
+st.markdown(ga_script + """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;800&family=Cinzel:wght=700&display=swap');
     
@@ -100,7 +99,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 🛠️ لقطة الـ IP الذكية: تجيب الـ IP وتظهرو ليك بالصغير الفوق على اليسار
+# 🛠️ لقطة الـ IP الذكية
 user_ip = st_javascript("fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip)")
 if user_ip:
     st.markdown(f"<p style='color: #44403c; font-size: 11px; text-align: left; margin-left: 10px;'>Session IP: {user_ip}</p>", unsafe_allow_html=True)
@@ -111,7 +110,7 @@ ai_avatar = IMAGE_NAME if os.path.exists(IMAGE_NAME) else "👑"
 user_avatar = "👤"
 
 # 5. ربط الـ API بالذكاء الاصطناعي
-# ⚠️ حط الـ API KEY متاعك هنا
+# ⚠️ حط الـ API KEY متاعك هنا بين "" في السطر الجاي بالظبط
 API_KEY = "AQ.Ab8RN6LywCg9Qkt9LiH2a9WHltUJmBfyHzTEhh0sgh5V-a1VwA" 
 client = genai.Client(api_key=API_KEY)
 
@@ -150,3 +149,4 @@ if prompt := st.chat_input("بماذا يمكن لـ A51 أن يخدمك الي�
                 st.error(full_response)
         
         st.session_state.messages.append({"role": "assistant", "content": full_response})
+                         
