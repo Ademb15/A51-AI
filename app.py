@@ -1,132 +1,158 @@
 import streamlit as st
 from google import genai
 import time
+import os
 
-# 1. إعدادات الصفحة الأساسية (الأيقونة والعرض الكامل)
+# 1. إعدادات المنصة الملكية
 st.set_page_config(
-    page_title="AI Tools V7", 
-    page_icon="✨", 
+    page_title="A51 - AI PREMIUM", 
+    page_icon="👑", 
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# 2. زينة الـ CSS السحرية (الألوان، الانميشن، الخطوط، وخلفية الشات)
+# 2. هندسة الـ CSS الفخمة والأنيقة (الذهبي والأسود الملكي)
 st.markdown("""
     <style>
-    /* تغيير الخط وتنسيق الخلفية العامة */
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;800&family=Cinzel:wght=700&display=swap');
     
+    /* الخلفية السينمائية للموقع */
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Cairo', sans-serif;
-        background-color: #0f172a; /* خلفية داكنة احترافية */
-        color: #f8fafc;
+        background: radial-gradient(circle at top, #1c1917 0%, #0c0a09 100%) !important;
+        color: #f5f5f4;
     }
     
-    /* أنيميشن وعنوان الموقع الملون */
-    .main-title {
-        font-size: 45px;
-        font-weight: 700;
-        background: linear-gradient(45deg, #00f2fe, #4facfe, #0000ff);
+    /* هيدر فخم جداً يحاكي التصميم الذهبي */
+    .brand-container {
+        text-align: center;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .brand-title {
+        font-family: 'Cinzel', serif;
+        font-size: 55px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-top: -20px;
-        margin-bottom: 5px;
-        animation: pulse 2s infinite;
+        margin-bottom: 0px;
+        filter: drop-shadow(0px 4px 15px rgba(212, 175, 55, 0.3));
+        animation: goldGlow 3s ease-in-out infinite alternate;
     }
     
-    .sub-title {
-        color: #94a3b8;
-        text-align: center;
-        font-size: 16px;
-        margin-bottom: 30px;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
+    .brand-subtitle {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        color: #a8a29e;
+        margin-top: 5px;
     }
 
-    /* تحسين شكل صناديق الشات */
+    @keyframes goldGlow {
+        0% { filter: drop-shadow(0px 4px 10px rgba(189, 149, 63, 0.2)); }
+        100% { filter: drop-shadow(0px 4px 25px rgba(252, 246, 186, 0.5)); }
+    }
+
+    /* صناديق الشات الفخمة المحاطة بلمسة ذهبية وخلفية داكنة مخملية */
     [data-testid="stChatMessage"] {
-        border-radius: 15px;
-        padding: 15px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-radius: 16px !important;
+        padding: 20px !important;
+        margin-bottom: 15px !important;
+        background: rgba(28, 25, 23, 0.7) !important;
+        border: 1px solid rgba(212, 175, 55, 0.1) !important;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
     }
     
-    /* تخصيص ميساج المستخدم */
+    [data-testid="stChatMessage"]:hover {
+        border: 1px solid rgba(212, 175, 55, 0.4) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* تمييز صندوق المستخدم */
     [data-testid="stChatMessage"][data-test-avatar="user"] {
-        background-color: #1e293b !important;
-        border-left: 5px solid #00f2fe;
+        border-left: 4px solid #bf953f !important;
     }
     
-    /* تخصيص ميساج الـ Bot */
+    /* تمييز صندوق الـ AI */
     [data-testid="stChatMessage"][data-test-avatar="assistant"] {
-        background-color: #0f172a !important;
-        border: 1px solid #334155;
-        border-right: 5px solid #4facfe;
+        border-right: 4px solid #fcf6ba !important;
     }
     
-    /* زينة لصندوق الكتابة اللوطاني */
+    /* إخفاء شعارات ستريمليت الزايدة تحت لزيادة الاحترافية */
+    footer {visibility: hidden;}
+    [data-testid="stHeader"] {background: rgba(0,0,0,0) !important;}
+    
+    /* ستايل صندوق المدخلات (الكتابة) */
     [data-testid="stChatInput"] {
-        border-radius: 30px !important;
-        border: 2px solid #334155 !important;
+        border-radius: 25px !important;
+        border: 1px solid #44403c !important;
+        background-color: #1c1917 !important;
+        color: #f5f5f4 !important;
+    }
+    [data-testid="stChatInput"]:focus-within {
+        border-color: #bf953f !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. واجهة الموقع (العناوين المزينة)
-st.markdown('<h1 class="main-title">✨ AI Tools V7 ✨</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">المساعد الذكي الأقوى والأجمل على الإطلاق 🚀</p>', unsafe_allow_html=True)
+# 3. واجهة البراند الملكي الفخم
+st.markdown("""
+    <div class="brand-container">
+        <h1 class="brand-title">A 5 1</h1>
+        <div class="brand-subtitle">STRENGTH . POWER . PRESTIGE</div>
+    </div>
+""", unsafe_allow_html=True)
 
-# 4. ربط الـ API بالذكاء الاصطناعي (تأكد من وضع الـ Key متاعك هنا)
-# ملاحظة: من المستحسن مستقبلاً تحط الـ Key في الـ Secrets متاع Streamlit
-API_KEY = "حط_الـ_API_KEY_متاعك_هنا" 
+# 4. إعداد صورة الـ Profile ديركت بالاسم الجديد الصحيح
+IMAGE_NAME = "File_000000004f90724696ccafaa839a00f2.png"
+
+ai_avatar = IMAGE_NAME if os.path.exists(IMAGE_NAME) else "👑"
+user_avatar = "👤"
+
+# 5. ربط الـ API بالذكاء الاصطناعي
+# ما تنساش تبدل الجملة اللي لوطا بالـ Key السري متاعك!
+API_KEY = "AQ.Ab8RN6LywCg9Qkt9LiH2a9WHltUJmBfyHzTEhh0sgh5V-a1VwA" 
 client = genai.Client(api_key=API_KEY)
 
-# 5. إدارة ذاكرة الشات (علشان يتفكر الميساجات القديمة)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# عرض الميساجات القديمة بالأيقونات المزينة الجديدة
+# عرض المحادثات السابقة باللوقو الفخم والجديد
 for message in st.session_state.messages:
-    avatar_icon = "👤" if message["role"] == "user" else "🤖"
-    with st.chat_message(message["role"], avatar=avatar_icon):
+    current_avatar = user_avatar if message["role"] == "user" else ai_avatar
+    with st.chat_message(message["role"], avatar=current_avatar):
         st.write(message["content"])
 
-# 6. استقبال كلام المستخدم وتوليد الإجابة مع أنيميشن التفكير
-if prompt := st.chat_input("اكتب سؤالك هنا..."):
-    # عرض ميساج المستخدم على البلاصة
-    with st.chat_message("user", avatar="👤"):
+# 6. استقبال الكلام وصناعة أنيميشن الكتابة الفخمة
+if prompt := st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟..."):
+    with st.chat_message("user", avatar=user_avatar):
         st.write(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # أنيميشن التحميل والتفكير المزيانة (Spinner)
-    with st.chat_message("assistant", avatar="🤖"):
-        with st.spinner("⚡ قاعد نخمم ونحلل في الإجابة... لحظة برك"):
+    with st.chat_message("assistant", avatar=ai_avatar):
+        with st.spinner("🔱 يتم الآن استدعاء الذكاء الخارق لـ A51..."):
             try:
-                # إرسال السؤال للـ API (Gemini)
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=prompt
                 )
                 full_response = response.text
                 
-                # حركة احترافية: إظهار الكتيبة كأن الـ Bot قاعد يكتب توا (Typewriter effect)
+                # أنيميشن ظهور الحروف التدريجي الفخم
                 message_placeholder = st.empty()
                 typed_text = ""
                 for chunk in full_response.split(" "):
                     typed_text += chunk + " "
-                    time.sleep(0.05)  # سرعة ظهور الكلمات
-                    message_placeholder.write(typed_text + "▌")
+                    time.sleep(0.04)
+                    message_placeholder.write(typed_text + "⏳")
                 message_placeholder.write(full_response)
                 
             except Exception as e:
-                full_response = "❌ صار خطأ صغير، ثبت من الـ API Key متاعك يا غالي!"
+                full_response = "❌ عذراً الملك، حدث خلل في الاتصال. تأكد من جودة الـ API Key."
                 st.error(full_response)
         
-        # حفظ ميساج الـ Bot في الذاكرة
         st.session_state.messages.append({"role": "assistant", "content": full_response})
-        
