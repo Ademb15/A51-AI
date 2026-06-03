@@ -128,7 +128,7 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 # 6. استقبال الكلام وصناعة أنيميشن الكتابة الفخمة
-if prompt := st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟..."):
+if prompt := st.chat_input("A51 في خدمتك..."):
     with st.chat_message("user", avatar=user_avatar):
         st.write(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
