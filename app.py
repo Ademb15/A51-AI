@@ -2,6 +2,7 @@ import streamlit as st
 from google import genai
 import time
 import os
+from streamlit_javascript import st_javascript
 
 # 1. إعدادات المنصة الملكية
 st.set_page_config(
@@ -11,19 +12,30 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. هندسة الـ CSS الفخمة والأنيقة (الذهبي والأسود الملكي)
-st.markdown("""
+# 2. كود التتبع Google Analytics
+TRACKING_ID = "G-XEKEDKQGY2"
+ga_script = f"""
+    <script async src="https://www.googletagmanager.com/gtag/js?id={TRACKING_ID}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){{dataLayer.push(arguments);}}
+        gtag('js', new Date());
+        gtag('config', '{TRACKING_ID}');
+    </script>
+"""
+
+# زينة الـ CSS السحرية
+st.markdown(f"""
+    {ga_script}
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;800&family=Cinzel:wght=700&display=swap');
     
-    /* الخلفية السينمائية للموقع */
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Cairo', sans-serif;
         background: radial-gradient(circle at top, #1c1917 0%, #0c0a09 100%) !important;
         color: #f5f5f4;
     }
     
-    /* هيدر فخم جداً يحاكي التصميم الذهبي */
     .brand-container {
         text-align: center;
         padding: 20px;
@@ -56,7 +68,6 @@ st.markdown("""
         100% { filter: drop-shadow(0px 4px 25px rgba(252, 246, 186, 0.5)); }
     }
 
-    /* صناديق الشات الفخمة المحاطة بلمسة ذهبية وخلفية داكنة مخملية */
     [data-testid="stChatMessage"] {
         border-radius: 16px !important;
         padding: 20px !important;
@@ -64,42 +75,24 @@ st.markdown("""
         background: rgba(28, 25, 23, 0.7) !important;
         border: 1px solid rgba(212, 175, 55, 0.1) !important;
         backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
     }
     
-    [data-testid="stChatMessage"]:hover {
-        border: 1px solid rgba(212, 175, 55, 0.4) !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-    }
+    [data-testid="stChatMessage"][data-test-avatar="user"] { border-left: 4px solid #bf953f !important; }
+    [data-testid="stChatMessage"][data-test-avatar="assistant"] { border-right: 4px solid #fcf6ba !important; }
     
-    /* تمييز صندوق المستخدم */
-    [data-testid="stChatMessage"][data-test-avatar="user"] {
-        border-left: 4px solid #bf953f !important;
-    }
-    
-    /* تمييز صندوق الـ AI */
-    [data-testid="stChatMessage"][data-test-avatar="assistant"] {
-        border-right: 4px solid #fcf6ba !important;
-    }
-    
-    /* إخفاء شعارات ستريمليت الزايدة تحت لزيادة الاحترافية */
     footer {visibility: hidden;}
     [data-testid="stHeader"] {background: rgba(0,0,0,0) !important;}
     
-    /* ستايل صندوق المدخلات (الكتابة) */
     [data-testid="stChatInput"] {
         border-radius: 25px !important;
         border: 1px solid #44403c !important;
         background-color: #1c1917 !important;
         color: #f5f5f4 !important;
     }
-    [data-testid="stChatInput"]:focus-within {
-        border-color: #bf953f !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. واجهة البراند الملكي الفخم
+# 3. واجهة البراند الملكي
 st.markdown("""
     <div class="brand-container">
         <h1 class="brand-title">A 5 1</h1>
@@ -107,28 +100,30 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 4. إعداد صورة الـ Profile ديركت بالاسم الجديد الصحيح
-IMAGE_NAME = "File_000000004f90724696ccafaa839a00f2.png"
+# 🛠️ لقطة الـ IP الذكية: تجيب الـ IP وتظهرو ليك بالصغير الفوق على اليسار
+user_ip = st_javascript("fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => data.ip)")
+if user_ip:
+    st.markdown(f"<p style='color: #44403c; font-size: 11px; text-align: left; margin-left: 10px;'>Session IP: {user_ip}</p>", unsafe_allow_html=True)
 
+# 4. إعداد صورة الـ Profile
+IMAGE_NAME = "File_000000004f90724696ccafaa839a00f2.png"
 ai_avatar = IMAGE_NAME if os.path.exists(IMAGE_NAME) else "👑"
 user_avatar = "👤"
 
 # 5. ربط الـ API بالذكاء الاصطناعي
-# ما تنساش تبدل الجملة اللي لوطا بالـ Key السري متاعك!
-API_KEY = "AQ.Ab8RN6LywCg9Qkt9LiH2a9WHltUJmBfyHzTEhh0sgh5V-a1VwA" 
+# ⚠️ حط الـ API KEY متاعك هنا
+API_KEY = "حط_الـ_API_KEY_متاعك_هنا" 
 client = genai.Client(api_key=API_KEY)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# عرض المحادثات السابقة باللوقو الفخم والجديد
 for message in st.session_state.messages:
     current_avatar = user_avatar if message["role"] == "user" else ai_avatar
     with st.chat_message(message["role"], avatar=current_avatar):
         st.write(message["content"])
 
-# 6. استقبال الكلام وصناعة أنيميشن الكتابة الفخمة
-if prompt := st.chat_input("A51 في خدمتك..."):
+if prompt := st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟..."):
     with st.chat_message("user", avatar=user_avatar):
         st.write(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -142,7 +137,6 @@ if prompt := st.chat_input("A51 في خدمتك..."):
                 )
                 full_response = response.text
                 
-                # أنيميشن ظهور الحروف التدريجي الفخم
                 message_placeholder = st.empty()
                 typed_text = ""
                 for chunk in full_response.split(" "):
