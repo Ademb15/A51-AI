@@ -1,4 +1,23 @@
 import streamlit as st
+
+st.markdown(
+    """
+    <style>
+    /* إخفاء زر التاج المزعج والأيقونة الدائرية */
+    [data-testid="stStatusWidget"], .stAppDeployButton {
+        display: none !important;
+    }
+    /* إخفاء القوائم الفوقانية */
+    #MainMenu, header {
+        visibility: hidden;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+import streamlit as st
 from google import genai
 import time
 import os
