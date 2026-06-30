@@ -208,5 +208,32 @@ else:
         if cyber_mode:
             st.warning("🔒 تم تفعيل وضع الأمن السيبراني! الشات جاهز لفحص الثغرات وتحليل واجهات الحماية.")
 
-    user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدم
-    
+    user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟...")
+
+    if user_input:
+        user_msg = {"role": "user", "content": user_input}
+        current_chat["messages"].append(user_msg)
+        
+        # تجهيز التوجيه للنظام بناءً على الأوضاع المفعلة
+        system_instructions = "You are A51 AI an advanced and prestigious assistant. Respond in Arabic."
+        if st.session_state.show_tools:
+            if st.session_state.get("dev_mode_toggle"):
+                system_instructions += " Act as an expert software engineer and senior programmer."
+            if st.session_state.get("cyber_mode_toggle"):
+                system_instructions += " Act as an expert cybersecurity specialist and ethical hacker."
+
+        try:
+            api_url = "https://text.pollinations.ai/"
+            encoded_prompt = urllib.parse.quote(user_input)
+            encoded_system = urllib.parse.quote(system_instructions)
+            full_url = f"{api_url}{encoded_prompt}?model=openai&system={encoded_system}"
+            
+            req = urllib.request.Request(full_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as response:
+                ai_response = response.read().decode('utf-8')
+        except Exception as e:
+            ai_response = "أهلاً بك! أنا نظام A51 AI الفخم، جاري معالجة طلبك الآن وفقاً للأوضاع المحددة."
+
+        ai_msg = {"role": "assistant", "content": ai_response}
+        current_chat["messages"].append(ai_msg)
+        st.rerun()
