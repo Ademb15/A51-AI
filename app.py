@@ -13,17 +13,17 @@ if os.path.exists("logo.jpg"):
 else:
     AI_AVATAR = "👑"
 
-# 2. تدمير كامل وشامل للون الأحمر وإخفاء بروفايل المستخدم بالـ CSS
+# 2. الـ CSS المطور: إبادة اللون الأحمر نهائياً وإخفاء بروفايل المستخدم بالكامل
 st.markdown("""
     <style>
     /* إخفاء أدوات السيرفر والتاج الافتراضي من أسفل وأعلى الصفحة */
     #MainMenu, footer, .stDeployButton {
-        visibility: hidden;
-        display: none;
+        visibility: hidden !important;
+        display: none !important;
     }
     header[data-testid="stHeader"] {
-        visibility: hidden;
-        display: none;
+        visibility: hidden !important;
+        display: none !important;
     }
     
     /* إخفاء صورة بروفايل المستخدم (User Avatar) نهائياً */
@@ -34,8 +34,8 @@ st.markdown("""
     
     /* تصميم الخلفية العامة والخطوط */
     .stApp {
-        background-color: #0b0a0a;
-        color: #ffffff;
+        background-color: #0b0a0a !important;
+        color: #ffffff !important;
     }
     .main-title {
         font-size: 50px;
@@ -53,32 +53,26 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* إبادة الخط الأحمر تحت الـ Tabs وتحويله للأزرق والذهبي */
+    /* تغيير ألوان التبويبات (Tabs) ومنع اللون الأحمر */
     button[data-baseweb="tab"] {
         color: #ffffff !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #1e90ff !important; /* أزرق ملكي */
     }
-    /* استهداف شريط التبويب السفلي لمنع ظهور الأحمر تماماً */
-    div[role="tablist"] div {
-        background-color: transparent !important;
-    }
     div[data-baseweb="tab-highlight-id"] {
         background-color: #1e90ff !important;
     }
     
-    /* إبادة الحواف الحمراء من الـ Chat Input وصناديق الإدخال بالكامل */
-    .stChatInputContainer, div[data-baseweb="input"], .stTextArea textarea, input {
-        border: 1px solid #d4af37 !important; /* ذهبي دائم */
-        box-shadow: none !important;
+    /* تلوين حواف صندوق الكتابة بالذهبي لمنع الأحمر */
+    .stChatInputContainer {
+        border-color: #d4af37 !important;
     }
-    .stChatInputContainer:focus-within, div[data-baseweb="input"]:focus-within {
-        border: 1px solid #1e90ff !important; /* يتحول للأزرق عند الكتابة */
-        box-shadow: 0 0 4px #1e90ff !important;
+    .stChatInputContainer:focus-within {
+        border-color: #1e90ff !important;
     }
     
-    /* إلغاء اللون الأحمر الافتراضي من أزرار الإرسال والأزرار الجانبية */
+    /* تعديل الأزرار العامة */
     button {
         border-color: #d4af37 !important;
         color: #ffffff !important;
@@ -154,19 +148,12 @@ else:
         st.write("---")
         st.write("💬 المحادثات السابقة:")
         
-        if st.session_state.user_type == "guest":
-            st.info("حفظ وتعديل المحادثات متاح للمشتركين.")
-        else:
+        if st.session_state.user_type != "guest":
             for chat_id, chat_data in list(st.session_state.chats.items()):
-                col_name, col_edit, col_del = st.columns([5, 2, 2])
+                col_name, col_del = st.columns([7, 2])
                 with col_name:
                     if st.button(chat_data["name"], key=f"select_{chat_id}"):
                         st.session_state.current_chat_id = chat_id
-                        st.rerun()
-                with col_edit:
-                    new_name = st.text_input("📝", value=chat_data["name"], key=f"rename_{chat_id}", label_visibility="collapsed")
-                    if new_name != chat_data["name"]:
-                        st.session_state.chats[chat_id]["name"] = new_name
                         st.rerun()
                 with col_del:
                     if st.button("🗑️", key=f"del_{chat_id}"):
@@ -177,5 +164,49 @@ else:
 
         if st.button("🚪 تسجيل الخروج", key="logout_btn"):
             st.session_state.logged_in = False
-            st.session_
+            st.session_state.chats = {}
+            st.rerun()
+
+    st.markdown("<div class='main-title'>A 5 1</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle'>STRENGTH . POWER . PRESTIGE</div>", unsafe_allow_html=True)
+
+    current_chat = st.session_state.chats[st.session_state.current_chat_id]
+    
+    # عرض الرسائل
+    for msg in current_chat["messages"]:
+        if msg["role"] == "user":
+            with st.chat_message("user", avatar=None): 
+                st.write(msg["content"])
+        else:
+            with st.chat_message("assistant", avatar=AI_AVATAR): 
+                st.write(msg["content"])
+
+    st.write("---")
+
+    col_plus, col_empty = st.columns([1, 10])
+    with col_plus:
+        if st.button("➕", help="انقر لفتح الأدوات الإضافية", key="tools_toggle"):
+            st.session_state.show_tools = not st.session_state.show_tools
+            st.rerun()
+
+    # قسم الأدوات المطور
+    if st.session_state.show_tools:
+        st.markdown("### 🛠️ الأدوات المتقدمة المضافة")
+        col1, col2 = st.columns(2)
+        with col1:
+            web_search = st.toggle("🌐 Recherche Web", value=True, key="search_toggle")
+            camera_file = st.camera_input("📷 Caméra", key="cam_input")
+            # إضافة وضع البرمجة
+            dev_mode = st.toggle("💻 Mode Programmation (وضع البرمجة)", value=False, key="dev_mode_toggle")
+        with col2:
+            uploaded_files = st.file_uploader("📁 Fichiers", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], key="file_upload")
+            # إضافة وضع الأمن السيبراني
+            cyber_mode = st.toggle("🛡️ Mode CyberSécurité (وضع الأمن السيبراني)", value=False, key="cyber_mode_toggle")
+
+        if dev_mode:
+            st.success("🤖 تم تفعيل وضع البرمجة! الشات مهيأ الآن لتحليل الأكواد وكتابة الخوارزميات (Python, JS, إلخ).")
+        if cyber_mode:
+            st.warning("🔒 تم تفعيل وضع الأمن السيبراني! الشات جاهز لفحص الثغرات وتحليل واجهات الحماية.")
+
+    user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدم
     
