@@ -4,30 +4,34 @@ import os
 import urllib.request
 import json
 
-# 1. إعدادات الصفحة والـ CSS المتقدم لتعديل التصميم والبروفايلات
+# 1. إعدادات الصفحة والـ CSS المتقدم لتغيير الألوان بالكامل وإخفاء البروفايل
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
 
-# التأكد من قراءة صورة الأسد المحلية التي قمت بتسميتها logo.jpg
+# التأكد من قراءة صورة الأسد المحلية logo.jpg
 if os.path.exists("logo.jpg"):
     AI_AVATAR = "logo.jpg"
 else:
-    AI_AVATAR = "👑" # احتياطي في حال لم يتم العثور على الملف
+    AI_AVATAR = "👑"
 
 st.markdown("""
     <style>
-    /* إخفاء التاج الأحمر والمربع الافتراضي من لوطة تماماً */
+    /* 1. إخفاء التاج الأحمر الافتراضي وأدوات السيرفر من أسفل الصفحة */
     #MainMenu, footer, .stDeployButton {
         visibility: hidden;
         display: none;
     }
-    
-    /* إخفاء شريط الـ Header الفوقاني بالكامل (Fork و علامة GitHub) */
     header[data-testid="stHeader"] {
         visibility: hidden;
         display: none;
     }
     
-    /* تصميم الخلفية العامة والخطوط */
+    /* 2. إخفاء صورة بروفايل المستخدم (User Avatar) تماماً من الشات */
+    div[data-testid="chatAvatarUser"] {
+        visibility: hidden !important;
+        display: none !important;
+    }
+    
+    /* 3. تنظيف وتغيير ألوان الخلفية والنصوص */
     .stApp {
         background-color: #0b0a0a;
         color: #ffffff;
@@ -35,7 +39,7 @@ st.markdown("""
     .main-title {
         font-size: 50px;
         font-weight: bold;
-        color: #d4af37; /* اللون الذهبي الفخم */
+        color: #d4af37; /* ذهبي */
         text-align: center;
         letter-spacing: 5px;
         margin-top: 20px;
@@ -48,12 +52,12 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* تحويل خط التبويب النشط (Tabs) من الأحمر إلى اللون الأزرق الفخم */
+    /* 4. إبادة اللون الأحمر من التبويبات (Tabs) وتحويلها للأزرق والذهبي */
     button[data-baseweb="tab"] {
         color: #ffffff !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #1e90ff !important; /* أزرق */
+        color: #1e90ff !important; /* أزرق فخم عند الاختيار */
     }
     div[data-testid="stTabs"] div[role="tablist"] div[style*="background-color: rgb(255, 75, 75)"] {
         background-color: #1e90ff !important; 
@@ -62,10 +66,37 @@ st.markdown("""
         background-color: #1e90ff !important;
     }
     
-    /* إخفاء صورة بروفايل المستخدم تماماً حسب طلبك */
-    div[data-testid="chatAvatarUser"] {
-        visibility: hidden !important;
-        display: none !important;
+    /* 5. إبادة الحواف الحمراء من خانات الإدخال (Inputs) عند الضغط عليها */
+    div[data-baseweb="input"] {
+        border-color: #d4af37 !important; /* تحويل الحواف للذهبي */
+    }
+    div[data-baseweb="input"]:focus-within {
+        border-color: #1e90ff !important; /* أزرق عند الكتابة */
+        box-shadow: 0 0 0 1px #1e90ff !important;
+    }
+    
+    /* 6. تعديل ألوان أزرار الـ Sidebar والأزرار العامة لتبتعد عن الأحمر */
+    button[kind="primary"] {
+        background-color: #1e90ff !important;
+        color: white !important;
+        border: none !important;
+    }
+    button[kind="secondary"] {
+        background-color: #1c1a1a !important;
+        color: #d4af37 !important;
+        border: 1px solid #d4af37 !important;
+    }
+    button:hover {
+        border-color: #1e90ff !important;
+        color: #1e90ff !important;
+    }
+    
+    /* 7. تغيير لون حواف الـ chat input الافتراضية لمنع اللون الأحمر */
+    .stChatInputContainer {
+        border-color: #d4af37 !important;
+    }
+    .stChatInputContainer:focus-within {
+        border-color: #1e90ff !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -91,7 +122,7 @@ if not st.session_state.chats:
     create_new_chat()
 
 # ==========================================
-# 3. واجهة تسجيل الدخول المصلحة (Authentication)
+# 3. واجهة تسجيل الدخول (Authentication)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("<div class='main-title'>A 5 1</div>", unsafe_allow_html=True)
@@ -104,7 +135,7 @@ if not st.session_state.logged_in:
     with tab1:
         email = st.text_input("البريد الإلكتروني")
         password = st.text_input("كلمة المرور", type="password")
-        if st.button("تسجيل الدخول / إنشاء حساب"):
+        if st.button("تسجيل الدخول / إنشاء حساب", key="login_btn"):
             if email:
                 st.session_state.logged_in = True
                 st.session_state.user_type = "user"
@@ -114,7 +145,7 @@ if not st.session_state.logged_in:
                 
     with tab2:
         st.write("يمكنك تجربة التطبيق كضيف، لكن بعض الميزات المتقدمة لن تكون متاحة.")
-        if st.button("الدخول كضيف 🚶‍♂️"):
+        if st.button("الدخول كضيف 🚶‍♂️", key="guest_btn"):
             st.session_state.logged_in = True
             st.session_state.user_type = "guest"
             st.rerun()
@@ -127,7 +158,7 @@ else:
         st.markdown("<div style='color:#d4af37; font-size:20px; font-weight:bold;'>A51 - إدارة المحادثات</div>", unsafe_allow_html=True)
         st.write(f"نوع الحساب: **{'مستخدم مسجل 👑' if st.session_state.user_type == 'user' else 'ضيف 🚶‍♂️'}**")
         
-        if st.button("➕ محادثة جديدة"):
+        if st.button("➕ محادثة جديدة", key="new_chat_btn"):
             create_new_chat()
             st.rerun()
             
@@ -135,7 +166,7 @@ else:
         st.write("💬 المحادثات السابقة:")
         
         if st.session_state.user_type == "guest":
-            st.warning("⚠️ حفظ وتعديل المحادثات غير متاح للضيوف.")
+            st.info("حفظ وتعديل المحادثات متاح للمشتركين.")
         else:
             for chat_id, chat_data in list(st.session_state.chats.items()):
                 col_name, col_edit, col_del = st.columns([5, 2, 2])
@@ -155,7 +186,7 @@ else:
                             st.session_state.current_chat_id = list(st.session_state.chats.keys())[0]
                             st.rerun()
 
-        if st.button("🚪 تسجيل الخروج"):
+        if st.button("🚪 تسجيل الخروج", key="logout_btn"):
             st.session_state.logged_in = False
             st.session_state.chats = {}
             st.rerun()
@@ -165,6 +196,7 @@ else:
 
     current_chat = st.session_state.chats[st.session_state.current_chat_id]
     
+    # عرض الرسائل مع إخفاء كامل لبروفايل المستخدم
     for msg in current_chat["messages"]:
         if msg["role"] == "user":
             with st.chat_message("user", avatar=None): 
@@ -177,7 +209,7 @@ else:
 
     col_plus, col_empty = st.columns([1, 10])
     with col_plus:
-        if st.button("➕", help="انقر لفتح الأدوات الإضافية"):
+        if st.button("➕", help="انقر لفتح الأدوات الإضافية", key="tools_toggle"):
             st.session_state.show_tools = not st.session_state.show_tools
             st.rerun()
 
@@ -185,32 +217,12 @@ else:
         st.markdown("### 🛠️ الأدوات المضافة للشات")
         col1, col2 = st.columns(2)
         with col1:
-            web_search = st.toggle("🌐 Recherche Web (البحث في الإنترنت)", value=True)
-            camera_file = st.camera_input("📷 إلتقاط صورة فورية (Caméra)")
+            web_search = st.toggle("🌐 Recherche Web (البحث في الإنترنت)", value=True, key="search_toggle")
+            camera_file = st.camera_input("📷 إلتقاط صورة فورية (Caméra)", key="cam_input")
         with col2:
-            uploaded_files = st.file_uploader("📁 تحميل ملفات وصور (Fichiers)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'])
-            st.button("⚽ Suivez la Coupe du monde")
-            st.button("✍️ Écrire ou modifier")
+            uploaded_files = st.file_uploader("📁 تحميل ملفات وصور (Fichiers)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], key="file_upload")
+            st.button("⚽ Suivez la Coupe du monde", key="wc_btn")
+            st.button("✍️ Écrire ou modifier", key="edit_btn")
 
     user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟...")
-
-    if user_input:
-        user_msg = {"role": "user", "content": user_input}
-        current_chat["messages"].append(user_msg)
-        
-        # ربط مباشر ومستقر عبر API ذكاء اصطناعي مفتوح وبدون أي مكتبات معقدة لضمان الرد الذكي الحقيقي
-        try:
-            api_url = "https://text.pollinations.ai/"
-            encoded_prompt = urllib.parse.quote(user_input)
-            full_url = f"{api_url}{encoded_prompt}?model=openai&system=You+are+A51+AI+an+advanced+and+prestigious+assistant+Respond+in+Arabic"
-            
-            req = urllib.request.Request(full_url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as response:
-                ai_response = response.read().decode('utf-8')
-        except Exception as e:
-            ai_response = "أهلاً بك! أنا نظام A51 AI، استلمت رسالتك بنجاح وجاري معالجتها الآن."
-
-        ai_msg = {"role": "assistant", "content": ai_response}
-        current_chat["messages"].append(ai_msg)
-        st.rerun()
     
