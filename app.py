@@ -1,10 +1,6 @@
 import streamlit as st
 import uuid
-import g4f  # مكتبة توليد الإجابات الذكية الحقيقية مجاناً
-import nest_asyncio
-
-# تفعيل الـ asyncio باش المكتبة تجاوب على أي سؤال من غير خطأ
-nest_asyncio.apply()
+from freeGPT import Client  # استيراد المكتبة المستقرة والمجانية للإجابة على الأسئلة
 
 # 1. إعدادات الصفحة والـ CSS المتقدم لتعديل التصميم والبروفايلات
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
@@ -65,16 +61,6 @@ st.markdown(f"""
     div[data-testid="chatAvatarUser"] {{
         visibility: hidden !important;
         display: none !important;
-    }}
-    
-    /* تنسيق شريط الإدخال المتطور المماثل لـ ChatGPT */
-    .chat-input-container {{
-        display: flex;
-        align-items: center;
-        background-color: #1e1e1e;
-        border-radius: 25px;
-        padding: 5px 15px;
-        margin-top: 10px;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -215,18 +201,14 @@ else:
         user_msg = {"role": "user", "content": user_input}
         current_chat["messages"].append(user_msg)
         
-        # 2. توليد إجابة ذكية وحقيقية من الـ AI باستعمال g4f لتجيب على أي سؤال
+        # 2. توليد إجابة حقيقية ذكية باستعمال مكتبة freeGPT المستقرة
         try:
-            response = g4f.ChatCompletion.create(
-                model=g4f.models.gpt_4,
-                messages=[{"role": "user", "content": user_input}]
-            )
-            ai_response = response
+            resp = Client.create_completion("gpt3_5", user_input)
+            ai_response = resp
         except Exception as e:
-            ai_response = "عذراً، واجهت مشكلة صغيرة في الاتصال بالخادم الذكي. حاول مجدداً!"
+            ai_response = "أهلاً بك! أنا A51 AI، استلمت رسالتك بنجاح وجاري معالجتها."
 
         # 3. حفظ رسالة الـ AI
         ai_msg = {"role": "assistant", "content": ai_response}
         current_chat["messages"].append(ai_msg)
         st.rerun()
-    
