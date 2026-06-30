@@ -2,21 +2,21 @@ import streamlit as st
 import uuid
 import os
 import urllib.request
-import json
+import urllib.parse
 
 # 1. إعدادات الصفحة الأساسية
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
 
-# التأكد من قراءة صورة الأسد الفخمة المذهبة logo.jpg كـ Avatar للـ AI
+# التأكد من مسار صورة الأسد الفخمة
 if os.path.exists("logo.jpg"):
     AI_AVATAR = "logo.jpg"
 else:
     AI_AVATAR = "👑"
 
-# 2. الـ CSS المطور: التخلص النهائي من الـ Avatars نتاع المستخدم وإبراز شعار الأسد
+# 2. الـ CSS المطور والجذري لحذف الأيقونات الحمراء وتكبير شعار الأسد الجديد
 st.markdown("""
     <style>
-    /* إخفاء أدوات السيرفر والتاج الافتراضي من أسفل وأعلى الصفحة */
+    /* إخفاء أدوات السيرفر والتاج من أعلى وأسفل الصفحة */
     #MainMenu, footer, .stDeployButton {
         visibility: hidden !important;
         display: none !important;
@@ -26,21 +26,27 @@ st.markdown("""
         display: none !important;
     }
     
-    /* إخفاء صورة بروفايل المستخدم نهائياً (للمسجل وللضيف) */
-    div[data-testid="chatAvatarUser"] {
+    /* إخفاء أيقونة المستخدم نهائياً (المسجل والضيف والـ Red Icon) */
+    div[data-testid="stChatMessageAvatarUser"] {
         visibility: hidden !important;
         display: none !important;
     }
     
-    /* تكبير وتحسين مظهر صورة الأسد المذهبة للذكاء الاصطناعي لتظهر فخمة */
-    div[data-testid="chatAvatarAssistant"] img {
+    /* تكبير وتحسين مظهر صورة الأسد المذهبة للـ AI الخاص بك */
+    div[data-testid="stChatMessageAvatarAssistant"] {
         width: 45px !important;
         height: 45px !important;
         border-radius: 50% !important;
-        border: 2px solid #d4af37 !important; /* إطار ذهبي فخم حول الأسد */
+        border: 2px solid #d4af37 !important; /* إطار ذهبي فخم */
+        overflow: hidden !important;
+    }
+    div[data-testid="stChatMessageAvatarAssistant"] img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
     }
     
-    /* تصميم الخلفية العامة والخطوط */
+    /* خلفية التطبيق الداكنة الفخمة */
     .stApp {
         background-color: #0b0a0a !important;
         color: #ffffff !important;
@@ -48,7 +54,7 @@ st.markdown("""
     .main-title {
         font-size: 50px;
         font-weight: bold;
-        color: #d4af37; /* ذهبي */
+        color: #d4af37;
         text-align: center;
         letter-spacing: 5px;
         margin-top: 20px;
@@ -61,26 +67,22 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* تغيير ألوان التبويبات (Tabs) ومنع اللون الأحمر */
+    /* ألوان التبويبات وصندوق الكتابة لمنع اللون الأحمر */
     button[data-baseweb="tab"] {
         color: #ffffff !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #1e90ff !important; /* أزرق ملكي */
+        color: #1e90ff !important;
     }
     div[data-baseweb="tab-highlight-id"] {
         background-color: #1e90ff !important;
     }
-    
-    /* تلوين حواف صندوق الكتابة بالذهبي لمنع الأحمر */
     .stChatInputContainer {
         border-color: #d4af37 !important;
     }
     .stChatInputContainer:focus-within {
         border-color: #1e90ff !important;
     }
-    
-    /* تعديل الأزرار العامة */
     button {
         border-color: #d4af37 !important;
         color: #ffffff !important;
@@ -92,7 +94,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. إعداد الحالات الافتراضية (Session State)
+# 3. إعداد الـ Session State
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "user_type" not in st.session_state: 
@@ -113,48 +115,40 @@ if not st.session_state.chats:
     create_new_chat()
 
 # ==========================================
-# 4. واجهة تسجيل الدخول (Authentication)
+# 4. واجهة تسجيل الدخول
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("<div class='main-title'>A 5 1</div>", unsafe_allow_html=True)
     st.markdown("<div class='subtitle'>STRENGTH . POWER . PRESTIGE</div>", unsafe_allow_html=True)
-    
-    st.subheader("مرحباً بك في A51 AI - الرجاء تسجيل الدخول")
+    st.subheader("مرحباً بك في A51 AI")
     
     tab1, tab2 = st.tabs(["تسجيل بالبريد الإلكتروني / Google", "الدخول كضيف"])
-    
     with tab1:
         email = st.text_input("البريد الإلكتروني")
         password = st.text_input("كلمة المرور", type="password")
-        if st.button("تسجيل الدخول / إنشاء حساب", key="login_btn"):
+        if st.button("تسجيل الدخول", key="login_btn"):
             if email:
                 st.session_state.logged_in = True
                 st.session_state.user_type = "user"
                 st.rerun()
             else:
                 st.error("الرجاء إدخال البريد الإلكتروني")
-                
     with tab2:
-        st.write("يمكنك تجربة التطبيق كضيف، لكن بعض الميزات المتقدمة لن تكون متاحة.")
         if st.button("الدخول كضيف 🚶‍♂️", key="guest_btn"):
             st.session_state.logged_in = True
             st.session_state.user_type = "guest"
             st.rerun()
 
 # ==========================================
-# 5. الواجهة الرئيسية بعد تسجيل الدخول
+# 5. واجهة الشات الرئيسية
 # ==========================================
 else:
     with st.sidebar:
         st.markdown("<div style='color:#d4af37; font-size:20px; font-weight:bold;'>A51 - إدارة المحادثات</div>", unsafe_allow_html=True)
-        st.write(f"نوع الحساب: **{'مستخدم مسجل 👑' if st.session_state.user_type == 'user' else 'ضيف 🚶‍♂️'}**")
-        
         if st.button("➕ محادثة جديدة", key="new_chat_btn"):
             create_new_chat()
             st.rerun()
-            
         st.write("---")
-        st.write("💬 المحادثات السابقة:")
         
         if st.session_state.user_type != "guest":
             for chat_id, chat_data in list(st.session_state.chats.items()):
@@ -169,7 +163,6 @@ else:
                             del st.session_state.chats[chat_id]
                             st.session_state.current_chat_id = list(st.session_state.chats.keys())[0]
                             st.rerun()
-
         if st.button("🚪 تسجيل الخروج", key="logout_btn"):
             st.session_state.logged_in = False
             st.session_state.chats = {}
@@ -180,28 +173,25 @@ else:
 
     current_chat = st.session_state.chats[st.session_state.current_chat_id]
     
-    # عرض الرسائل بشكل نظيف ومطور
+    # عرض الرسائل بـ Avatars مصلحة
     for msg in current_chat["messages"]:
         if msg["role"] == "user":
-            # إلغاء الـ Avatar للمستخدم لإعطاء مظهر عصري ونظيف
-            with st.chat_message("user", avatar=None): 
+            with st.chat_message("user", avatar=None):
                 st.write(msg["content"])
         else:
-            # استخدام صورة الأسد logo.jpg الفخمة للذكاء الاصطناعي
-            with st.chat_message("assistant", avatar=AI_AVATAR): 
+            with st.chat_message("assistant", avatar=AI_AVATAR):
                 st.write(msg["content"])
 
     st.write("---")
 
-    col_plus, col_empty = st.columns([1, 10])
+    col_plus, _ = st.columns([1, 10])
     with col_plus:
-        if st.button("➕", help="انقر لفتح الأدوات الإضافية", key="tools_toggle"):
+        if st.button("➕", key="tools_toggle"):
             st.session_state.show_tools = not st.session_state.show_tools
             st.rerun()
 
-    # قسم الأدوات المطور
     if st.session_state.show_tools:
-        st.markdown("### 🛠️ الأدوات المتقدمة المضافة")
+        st.markdown("### 🛠️ الأدوات المتقدمة")
         col1, col2 = st.columns(2)
         with col1:
             web_search = st.toggle("🌐 Recherche Web", value=True, key="search_toggle")
@@ -211,37 +201,33 @@ else:
             uploaded_files = st.file_uploader("📁 Fichiers", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], key="file_upload")
             cyber_mode = st.toggle("🛡️ Mode CyberSécurité (وضع الأمن السيبراني)", value=False, key="cyber_mode_toggle")
 
-        if dev_mode:
-            st.success("🤖 تم تفعيل وضع البرمجة! الشات مهيأ الآن لتحليل الأكواد وكتابة الخوارزميات.")
-        if cyber_mode:
-            st.warning("🔒 تم تفعيل وضع الأمن السيبراني! الشات جاهز لفحص الثغرات وتحليل واجهات الحماية.")
-
     user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟...")
 
     if user_input:
         user_msg = {"role": "user", "content": user_input}
         current_chat["messages"].append(user_msg)
         
-        system_instructions = "You are A51 AI an advanced and prestigious assistant. Respond in Arabic."
-        if st.session_state.show_tools:
-            if st.session_state.get("dev_mode_toggle"):
-                system_instructions += " Act as an expert software engineer and senior programmer."
-            if st.session_state.get("cyber_mode_toggle"):
-                system_instructions += " Act as an expert cybersecurity specialist and ethical hacker."
+        # تحسين صياغة النظام لمنع أي مشاكل في الروابط
+        system_instructions = "You are A51 AI, an expert assistant. Respond directly and beautifully in Arabic."
+        if st.session_state.get("dev_mode_toggle"):
+            system_instructions += " Focus deeply on programming and algorithms."
+        if st.session_state.get("cyber_mode_toggle"):
+            system_instructions += " Focus deeply on cybersecurity and systems protection."
 
+        # الاتصال المباشر والآمن بالـ API بدون استخدام نصوص طوارئ مكررة
         try:
             api_url = "https://text.pollinations.ai/"
             encoded_prompt = urllib.parse.quote(user_input)
             encoded_system = urllib.parse.quote(system_instructions)
-            full_url = f"{api_url}{encoded_prompt}?model=openai&system={encoded_system}"
+            full_url = f"{api_url}{encoded_prompt}?model=searchgpt&system={encoded_system}" # تم التغيير لـ searchgpt لسرعة الاستجابة
             
             req = urllib.request.Request(full_url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req) as response:
                 ai_response = response.read().decode('utf-8')
         except Exception as e:
-            ai_response = "أهلاً بك! أنا نظام A51 AI الفخم، جاري معالجة طلبك الآن."
+            ai_response = f"عذراً يا غالي، واجهت مشكلة في الاتصال بالسيرفر الخارجي. تأكد من الإنترنت وأعد المحاولة! (الخطأ: {str(e)})"
 
         ai_msg = {"role": "assistant", "content": ai_response}
         current_chat["messages"].append(ai_msg)
         st.rerun()
-
+    
