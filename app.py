@@ -1,6 +1,10 @@
 import streamlit as st
 import uuid
 import g4f  # مكتبة توليد الإجابات الذكية الحقيقية مجاناً
+import nest_asyncio
+
+# تفعيل الـ asyncio باش المكتبة تجاوب على أي سؤال من غير خطأ
+nest_asyncio.apply()
 
 # 1. إعدادات الصفحة والـ CSS المتقدم لتعديل التصميم والبروفايلات
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
