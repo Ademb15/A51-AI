@@ -4,7 +4,7 @@ import os
 import urllib.request
 import json
 
-# 1. إعدادات الصفحة والـ CSS المتقدم لتغيير الألوان بالكامل وإخفاء البروفايل
+# 1. إعدادات الصفحة الأساسية
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
 
 # التأكد من قراءة صورة الأسد المحلية logo.jpg
@@ -13,9 +13,10 @@ if os.path.exists("logo.jpg"):
 else:
     AI_AVATAR = "👑"
 
+# 2. تدمير كامل وشامل للون الأحمر وإخفاء بروفايل المستخدم بالـ CSS
 st.markdown("""
     <style>
-    /* 1. إخفاء التاج الأحمر الافتراضي وأدوات السيرفر من أسفل الصفحة */
+    /* إخفاء أدوات السيرفر والتاج الافتراضي من أسفل وأعلى الصفحة */
     #MainMenu, footer, .stDeployButton {
         visibility: hidden;
         display: none;
@@ -25,13 +26,13 @@ st.markdown("""
         display: none;
     }
     
-    /* 2. إخفاء صورة بروفايل المستخدم (User Avatar) تماماً من الشات */
+    /* إخفاء صورة بروفايل المستخدم (User Avatar) نهائياً */
     div[data-testid="chatAvatarUser"] {
         visibility: hidden !important;
         display: none !important;
     }
     
-    /* 3. تنظيف وتغيير ألوان الخلفية والنصوص */
+    /* تصميم الخلفية العامة والخطوط */
     .stApp {
         background-color: #0b0a0a;
         color: #ffffff;
@@ -39,7 +40,7 @@ st.markdown("""
     .main-title {
         font-size: 50px;
         font-weight: bold;
-        color: #d4af37; /* ذهبي */
+        color: #d4af37; /* ذهبي فخم */
         text-align: center;
         letter-spacing: 5px;
         margin-top: 20px;
@@ -52,56 +53,44 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* 4. إبادة اللون الأحمر من التبويبات (Tabs) وتحويلها للأزرق والذهبي */
+    /* إبادة الخط الأحمر تحت الـ Tabs وتحويله للأزرق والذهبي */
     button[data-baseweb="tab"] {
         color: #ffffff !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #1e90ff !important; /* أزرق فخم عند الاختيار */
+        color: #1e90ff !important; /* أزرق ملكي */
     }
-    div[data-testid="stTabs"] div[role="tablist"] div[style*="background-color: rgb(255, 75, 75)"] {
-        background-color: #1e90ff !important; 
+    /* استهداف شريط التبويب السفلي لمنع ظهور الأحمر تماماً */
+    div[role="tablist"] div {
+        background-color: transparent !important;
     }
     div[data-baseweb="tab-highlight-id"] {
         background-color: #1e90ff !important;
     }
     
-    /* 5. إبادة الحواف الحمراء من خانات الإدخال (Inputs) عند الضغط عليها */
-    div[data-baseweb="input"] {
-        border-color: #d4af37 !important; /* تحويل الحواف للذهبي */
+    /* إبادة الحواف الحمراء من الـ Chat Input وصناديق الإدخال بالكامل */
+    .stChatInputContainer, div[data-baseweb="input"], .stTextArea textarea, input {
+        border: 1px solid #d4af37 !important; /* ذهبي دائم */
+        box-shadow: none !important;
     }
-    div[data-baseweb="input"]:focus-within {
-        border-color: #1e90ff !important; /* أزرق عند الكتابة */
-        box-shadow: 0 0 0 1px #1e90ff !important;
+    .stChatInputContainer:focus-within, div[data-baseweb="input"]:focus-within {
+        border: 1px solid #1e90ff !important; /* يتحول للأزرق عند الكتابة */
+        box-shadow: 0 0 4px #1e90ff !important;
     }
     
-    /* 6. تعديل ألوان أزرار الـ Sidebar والأزرار العامة لتبتعد عن الأحمر */
-    button[kind="primary"] {
-        background-color: #1e90ff !important;
-        color: white !important;
-        border: none !important;
-    }
-    button[kind="secondary"] {
-        background-color: #1c1a1a !important;
-        color: #d4af37 !important;
-        border: 1px solid #d4af37 !important;
+    /* إلغاء اللون الأحمر الافتراضي من أزرار الإرسال والأزرار الجانبية */
+    button {
+        border-color: #d4af37 !important;
+        color: #ffffff !important;
     }
     button:hover {
         border-color: #1e90ff !important;
         color: #1e90ff !important;
     }
-    
-    /* 7. تغيير لون حواف الـ chat input الافتراضية لمنع اللون الأحمر */
-    .stChatInputContainer {
-        border-color: #d4af37 !important;
-    }
-    .stChatInputContainer:focus-within {
-        border-color: #1e90ff !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# 2. إعداد الحالات الافتراضية (Session State)
+# 3. إعداد الحالات الافتراضية (Session State)
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "user_type" not in st.session_state: 
@@ -122,7 +111,7 @@ if not st.session_state.chats:
     create_new_chat()
 
 # ==========================================
-# 3. واجهة تسجيل الدخول (Authentication)
+# 4. واجهة تسجيل الدخول (Authentication)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("<div class='main-title'>A 5 1</div>", unsafe_allow_html=True)
@@ -151,7 +140,7 @@ if not st.session_state.logged_in:
             st.rerun()
 
 # ==========================================
-# 4. الواجهة الرئيسية بعد تسجيل الدخول
+# 5. الواجهة الرئيسية بعد تسجيل الدخول
 # ==========================================
 else:
     with st.sidebar:
@@ -188,41 +177,5 @@ else:
 
         if st.button("🚪 تسجيل الخروج", key="logout_btn"):
             st.session_state.logged_in = False
-            st.session_state.chats = {}
-            st.rerun()
-
-    st.markdown("<div class='main-title'>A 5 1</div>", unsafe_allow_html=True)
-    st.markdown("<div class='subtitle'>STRENGTH . POWER . PRESTIGE</div>", unsafe_allow_html=True)
-
-    current_chat = st.session_state.chats[st.session_state.current_chat_id]
-    
-    # عرض الرسائل مع إخفاء كامل لبروفايل المستخدم
-    for msg in current_chat["messages"]:
-        if msg["role"] == "user":
-            with st.chat_message("user", avatar=None): 
-                st.write(msg["content"])
-        else:
-            with st.chat_message("assistant", avatar=AI_AVATAR): 
-                st.write(msg["content"])
-
-    st.write("---")
-
-    col_plus, col_empty = st.columns([1, 10])
-    with col_plus:
-        if st.button("➕", help="انقر لفتح الأدوات الإضافية", key="tools_toggle"):
-            st.session_state.show_tools = not st.session_state.show_tools
-            st.rerun()
-
-    if st.session_state.show_tools:
-        st.markdown("### 🛠️ الأدوات المضافة للشات")
-        col1, col2 = st.columns(2)
-        with col1:
-            web_search = st.toggle("🌐 Recherche Web (البحث في الإنترنت)", value=True, key="search_toggle")
-            camera_file = st.camera_input("📷 إلتقاط صورة فورية (Caméra)", key="cam_input")
-        with col2:
-            uploaded_files = st.file_uploader("📁 تحميل ملفات وصور (Fichiers)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], key="file_upload")
-            st.button("⚽ Suivez la Coupe du monde", key="wc_btn")
-            st.button("✍️ Écrire ou modifier", key="edit_btn")
-
-    user_input = st.chat_input("بماذا يمكن لـ A51 أن يخدمك اليوم؟...")
+            st.session_
     
