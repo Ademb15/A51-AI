@@ -7,13 +7,13 @@ import json
 # 1. إعدادات الصفحة الأساسية
 st.set_page_config(page_title="A51 AI", page_icon="✨", layout="centered")
 
-# التأكد من قراءة صورة الأسد المحلية logo.jpg
+# التأكد من قراءة صورة الأسد الفخمة المذهبة logo.jpg كـ Avatar للـ AI
 if os.path.exists("logo.jpg"):
     AI_AVATAR = "logo.jpg"
 else:
     AI_AVATAR = "👑"
 
-# 2. الـ CSS المطور: إبادة اللون الأحمر نهائياً وإخفاء بروفايل المستخدم بالكامل
+# 2. الـ CSS المطور: التخلص النهائي من الـ Avatars نتاع المستخدم وإبراز شعار الأسد
 st.markdown("""
     <style>
     /* إخفاء أدوات السيرفر والتاج الافتراضي من أسفل وأعلى الصفحة */
@@ -26,10 +26,18 @@ st.markdown("""
         display: none !important;
     }
     
-    /* إخفاء صورة بروفايل المستخدم (User Avatar) نهائياً */
+    /* إخفاء صورة بروفايل المستخدم نهائياً (للمسجل وللضيف) */
     div[data-testid="chatAvatarUser"] {
         visibility: hidden !important;
         display: none !important;
+    }
+    
+    /* تكبير وتحسين مظهر صورة الأسد المذهبة للذكاء الاصطناعي لتظهر فخمة */
+    div[data-testid="chatAvatarAssistant"] img {
+        width: 45px !important;
+        height: 45px !important;
+        border-radius: 50% !important;
+        border: 2px solid #d4af37 !important; /* إطار ذهبي فخم حول الأسد */
     }
     
     /* تصميم الخلفية العامة والخطوط */
@@ -40,7 +48,7 @@ st.markdown("""
     .main-title {
         font-size: 50px;
         font-weight: bold;
-        color: #d4af37; /* ذهبي فخم */
+        color: #d4af37; /* ذهبي */
         text-align: center;
         letter-spacing: 5px;
         margin-top: 20px;
@@ -172,12 +180,14 @@ else:
 
     current_chat = st.session_state.chats[st.session_state.current_chat_id]
     
-    # عرض الرسائل
+    # عرض الرسائل بشكل نظيف ومطور
     for msg in current_chat["messages"]:
         if msg["role"] == "user":
+            # إلغاء الـ Avatar للمستخدم لإعطاء مظهر عصري ونظيف
             with st.chat_message("user", avatar=None): 
                 st.write(msg["content"])
         else:
+            # استخدام صورة الأسد logo.jpg الفخمة للذكاء الاصطناعي
             with st.chat_message("assistant", avatar=AI_AVATAR): 
                 st.write(msg["content"])
 
@@ -196,15 +206,13 @@ else:
         with col1:
             web_search = st.toggle("🌐 Recherche Web", value=True, key="search_toggle")
             camera_file = st.camera_input("📷 Caméra", key="cam_input")
-            # إضافة وضع البرمجة
             dev_mode = st.toggle("💻 Mode Programmation (وضع البرمجة)", value=False, key="dev_mode_toggle")
         with col2:
             uploaded_files = st.file_uploader("📁 Fichiers", accept_multiple_files=True, type=['png', 'jpg', 'jpeg'], key="file_upload")
-            # إضافة وضع الأمن السيبراني
             cyber_mode = st.toggle("🛡️ Mode CyberSécurité (وضع الأمن السيبراني)", value=False, key="cyber_mode_toggle")
 
         if dev_mode:
-            st.success("🤖 تم تفعيل وضع البرمجة! الشات مهيأ الآن لتحليل الأكواد وكتابة الخوارزميات (Python, JS, إلخ).")
+            st.success("🤖 تم تفعيل وضع البرمجة! الشات مهيأ الآن لتحليل الأكواد وكتابة الخوارزميات.")
         if cyber_mode:
             st.warning("🔒 تم تفعيل وضع الأمن السيبراني! الشات جاهز لفحص الثغرات وتحليل واجهات الحماية.")
 
@@ -214,7 +222,6 @@ else:
         user_msg = {"role": "user", "content": user_input}
         current_chat["messages"].append(user_msg)
         
-        # تجهيز التوجيه للنظام بناءً على الأوضاع المفعلة
         system_instructions = "You are A51 AI an advanced and prestigious assistant. Respond in Arabic."
         if st.session_state.show_tools:
             if st.session_state.get("dev_mode_toggle"):
@@ -232,8 +239,9 @@ else:
             with urllib.request.urlopen(req) as response:
                 ai_response = response.read().decode('utf-8')
         except Exception as e:
-            ai_response = "أهلاً بك! أنا نظام A51 AI الفخم، جاري معالجة طلبك الآن وفقاً للأوضاع المحددة."
+            ai_response = "أهلاً بك! أنا نظام A51 AI الفخم، جاري معالجة طلبك الآن."
 
         ai_msg = {"role": "assistant", "content": ai_response}
         current_chat["messages"].append(ai_msg)
         st.rerun()
+
